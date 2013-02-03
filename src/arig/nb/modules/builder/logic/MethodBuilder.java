@@ -1,6 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * This software is released as-is for the general good. It may be used without 
+ * permission for any reason as long as my name is contained in the documentation 
+ * somewhere. I don't care if it's highly visible or not. 
+ * I claim no responsibility for damages that may occur to any person, place, 
+ * thing, idea or noun through the direct or indirect use, misuse or 
+ * disuse of this product
  */
 package arig.nb.modules.builder.logic;
 
@@ -24,7 +28,7 @@ import org.netbeans.api.java.source.TreeMaker;
 
 /**
  *
- * @author arek
+ * @author Arkadiusz Gabiga
  */
 public class MethodBuilder {
 
