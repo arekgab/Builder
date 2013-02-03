@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: arig.nb.modules.builder/1
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Localizing-Bundle: arig/nb/modules/builder/Bundle.properties
+
