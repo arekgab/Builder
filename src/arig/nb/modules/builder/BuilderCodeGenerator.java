@@ -9,6 +9,7 @@
 package arig.nb.modules.builder;
 
 import arig.nb.modules.builder.logic.ClassBuilder;
+import arig.nb.modules.builder.utils.Util;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodTree;
@@ -75,6 +76,7 @@ public class BuilderCodeGenerator implements CodeGenerator {
      */
     public void invoke() {
         try {
+            final Util util = new Util();
             Document doc = textComp.getDocument();
             JavaSource javaSource = JavaSource.forDocument(doc);
             CancellableTask<WorkingCopy> task = new CancellableTask<WorkingCopy>() {
@@ -110,7 +112,9 @@ public class BuilderCodeGenerator implements CodeGenerator {
                             for (Tree memTree : members) {
                                 if (Tree.Kind.VARIABLE == memTree.getKind()) {
                                     VariableTree var = (VariableTree) memTree;
-                                    fields.add(var);
+                                    if(util.canProcess(var)) {
+                                        fields.add(var);
+                                    }
                                 }
 
                                 if (memTree.getKind() == Tree.Kind.METHOD) {

@@ -8,6 +8,7 @@
  */
 package arig.nb.modules.builder.logic;
 
+import arig.nb.modules.builder.utils.Util;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.ExpressionTree;
@@ -42,17 +43,19 @@ public class MethodBuilder {
     private String prefix;
     private TreeMaker make;
     private List<VariableTree> fields;
+    private Util util;
 
     public MethodBuilder(String prefix, TreeMaker make, List<VariableTree> fields) {
         this.prefix = prefix;
         this.make = make;
         this.fields = fields;
+        this.util = new Util();
     }
 
     public List<Tree> setterMethods() {
         List<Tree> methods = new ArrayList<Tree>();
         for (VariableTree var : fields) {
-            if (canProcess(var)) {
+            if (util.canProcess(var)) {
                 methods.add(prepareMethod(var));
             }
         }
@@ -61,7 +64,7 @@ public class MethodBuilder {
 
     public Tree createBuilderMethod(List<? extends TypeParameterTree> parameters) {      
         String paramatrized = buildParams(parameters);
-        MethodTree mt = make.Method(make.Modifiers(modifiers(Modifier.PUBLIC, Modifier.STATIC)),
+        MethodTree mt = make.Method(make.Modifiers(util.modifiers(Modifier.PUBLIC, Modifier.STATIC)),
                 BUILDER_METHOD_NAME,
                 make.Type(ClassBuilder.BUILDER_CLASS_NAME + paramatrized),
                 parameters,
@@ -74,7 +77,7 @@ public class MethodBuilder {
     }
 
     public Tree createBuildMethod(String className) {
-        MethodTree mt = make.Method(make.Modifiers(modifiers(Modifier.PUBLIC)),
+        MethodTree mt = make.Method(make.Modifiers(util.modifiers(Modifier.PUBLIC)),
                 BUILD_METHOD_NAME,
                 make.Type(className),
                 Collections.<TypeParameterTree>emptyList(),
@@ -110,15 +113,6 @@ public class MethodBuilder {
         return prms;
     }
     
-    private boolean canProcess(VariableTree var) {
-        Set<Modifier> flags = var.getModifiers().getFlags();
-        return !flags.contains(Modifier.STATIC);
-    }
-
-    private Set<Modifier> modifiers(Modifier... mods) {
-        return new HashSet<Modifier>(Arrays.asList(mods));
-    }
-
     private String resolveMethodName(String fieldName) {
         String methodName = null;
         if(prefix != null && !prefix.isEmpty()){
@@ -131,12 +125,12 @@ public class MethodBuilder {
     }
     
     private MethodTree prepareMethod(VariableTree var) {
-        ModifiersTree modifiers = make.Modifiers(modifiers(Modifier.PUBLIC));
+        ModifiersTree modifiers = make.Modifiers(util.modifiers(Modifier.PUBLIC));
         Tree type = var.getType();
         String fieldName = var.getName().toString();
         String methodName = resolveMethodName(fieldName);
 
-        VariableTree parameter = make.Variable(make.Modifiers(modifiers()),
+        VariableTree parameter = make.Variable(make.Modifiers(util.modifiers()),
                 fieldName,
                 type,
                 null);
@@ -161,7 +155,7 @@ public class MethodBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format(construct, className, className));
         for (VariableTree vt : newMembers) {
-            if(canProcess(vt)) {
+            if(util.canProcess(vt)) {
                 sb.append(String.format(assignment, vt.getName().toString(), vt.getName().toString()));
             }
         }

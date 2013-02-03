@@ -8,6 +8,7 @@
  */
 package arig.nb.modules.builder.logic;
 
+import arig.nb.modules.builder.utils.Util;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodTree;
@@ -39,6 +40,7 @@ public class ClassBuilder {
     private List<Tree> allMembers;
     private MethodBuilder mb;
     private List<? extends TypeParameterTree> parameters;
+    private Util util;
 
     public ClassBuilder(TreeMaker make, String className, String methodPrefix, List<VariableTree> fields, List<? extends TypeParameterTree> parameters) {
         this.make = make;
@@ -53,6 +55,7 @@ public class ClassBuilder {
         }
 
         this.parameters = parameters;
+        this.util = new Util();
     }
 
     public Tree createBuilderMethod() {
@@ -60,12 +63,12 @@ public class ClassBuilder {
     }
 
     public Tree createConstructor() {
-        VariableTree parameter = make.Variable(make.Modifiers(modifiers()),
+        VariableTree parameter = make.Variable(make.Modifiers(util.modifiers()),
                 BUILDER_CLASS_NAME.toLowerCase(),
                 make.Type(BUILDER_CLASS_NAME + mb.buildParams(parameters)),
                 null);
         MethodTree constructor = make.Constructor(
-                make.Modifiers(modifiers(Modifier.PRIVATE)),
+                make.Modifiers(util.modifiers(Modifier.PRIVATE)),
                 Collections.<TypeParameterTree>emptyList(),
                 Collections.<VariableTree>singletonList(parameter),
                 Collections.<ExpressionTree>emptyList(),
@@ -76,7 +79,7 @@ public class ClassBuilder {
     
     public Tree createEmptyConstructor() {
         MethodTree constructor = make.Constructor(
-                make.Modifiers(modifiers(Modifier.PUBLIC)),
+                make.Modifiers(util.modifiers(Modifier.PUBLIC)),
                 Collections.<TypeParameterTree>emptyList(),
                 Collections.<VariableTree>emptyList(),
                 Collections.<ExpressionTree>emptyList(),
@@ -88,7 +91,7 @@ public class ClassBuilder {
     
 
     public ClassTree buildClass() {
-        ModifiersTree classModifiers = make.Modifiers(modifiers(Modifier.PUBLIC, Modifier.STATIC));
+        ModifiersTree classModifiers = make.Modifiers(util.modifiers(Modifier.PUBLIC, Modifier.STATIC));
         List<Tree> setterMethods = mb.setterMethods();
         Tree buildMethod = mb.createBuildMethod(className);
 
@@ -104,7 +107,7 @@ public class ClassBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         for (VariableTree vt : fields) {
-            if (canProcess(vt)) {
+            if (util.canProcess(vt)) {
                 sb.append(String.format(CONSTRUCTOR_SETTER_LINE,
                         vt.getName().toString(),
                         BUILDER_CLASS_NAME.toLowerCase(),
@@ -114,16 +117,4 @@ public class ClassBuilder {
         sb.append("}");
         return sb.toString();
     }
-
-    private Set<Modifier> modifiers(Modifier... mods) {
-        return new HashSet<Modifier>(Arrays.asList(mods));
-    }
-
-    private boolean canProcess(VariableTree var) {
-        Set<Modifier> flags = var.getModifiers().getFlags();
-        return !flags.contains(Modifier.STATIC);
-    }
-    
-    
-    
 }
